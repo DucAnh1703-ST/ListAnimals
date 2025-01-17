@@ -103,12 +103,6 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         showConfirmDialog(position)
     }
 
-
-
-
-
-
-
     private fun showConfirmDialog(position: Int) {
         // Tạo AlertDialog để xác nhận xóa
         val dialogBuilder = AlertDialog.Builder(this)
