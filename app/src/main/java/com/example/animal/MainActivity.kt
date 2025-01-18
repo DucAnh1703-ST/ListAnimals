@@ -1,6 +1,9 @@
 package com.example.animal
 
 import android.os.Bundle
+import android.util.Log
+import android.view.View
+import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
@@ -19,6 +22,8 @@ import com.example.animal.model.Cat
 import com.example.animal.model.Dog
 import com.example.animal.model.Dragon
 import com.example.animal.model.Shark
+import com.example.animal.model.Lion
+import com.example.animal.model.Tiger
 import com.example.animal.model.Species
 import com.example.animal.viewmodel.AnimalViewModel
 
@@ -28,6 +33,7 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
     private lateinit var animalViewModel: AnimalViewModel
     // khai bao bien binding
     private lateinit var binding: ActivityMainBinding
+    private var colorID : Int = -1
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -82,6 +88,25 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         typeAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinColor.adapter = typeAdapter2
 
+        binding.spinColor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                // Lấy item đã chọn
+                val selectedColor = parent.getItemAtPosition(position).toString()
+                when(selectedColor){
+                    "Blue" -> colorID = R.drawable.blue
+                    "Pink" -> colorID = R.drawable.pink
+                    "Green" -> colorID = R.drawable.green
+                    "Red" -> colorID = R.drawable.red
+                    "Yellow" -> colorID = R.drawable.yellow
+                    "Black" -> colorID = R.drawable.black
+                }
+                // Thực hiện hành động với item đã chọn (in ra màu)
+//                Toast.makeText(this@MainActivity, "$colorID", Toast.LENGTH_SHORT).show()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>) {
+                // Không có item nào được chọn
+            }
+        }
 
         binding.btnAdd.setOnClickListener {
             if(binding.edtName.text.isEmpty()){
@@ -94,7 +119,7 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
 
     private fun addNewAnimal(){
         var newName = binding.edtName.text.toString().trim()
-        val newAnimal1 = Cat(newName,R.drawable.blue)
+        val newAnimal1 = Cat(newName,colorID)
         animalViewModel.addAnimal(newAnimal1)
 
     }
