@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.animal.convert.ColorConverter
 import com.example.animal.factory.AnimalFactory
 import com.example.animal.model.Animal
 import com.example.animal.repo.AnimalRepository
@@ -12,31 +13,37 @@ class AnimalViewModel(application: Application) : AndroidViewModel(application) 
 
     private val repository = AnimalRepository()
 
-    // LiveData để chứa danh sách các con vật
+    // LiveData to contain the list
     private val _animals = MutableLiveData<MutableList<Animal>>()
     val animals: LiveData<MutableList<Animal>> = _animals
 
-    // Lấy danh sách động vật từ Repository
+    // Get List from Repository
     private fun getAllAnimals() {
         _animals.value = repository.getAllAnimals()
     }
 
-    // Thêm một con vật mới
+    // Add new
     fun addAnimal(type: String, name: String, color: Int) {
-        val animal = AnimalFactory.createAnimal(type, name, color) // Factory logic ở đây
+        val animal = AnimalFactory.createAnimal(type, name, color) // Factory logic here
         repository.addAnimal(animal)
         getAllAnimals()
     }
 
-    // Cập nhật thông tin của con vật
-    fun updateAnimal(animal: Animal) {
-        repository.updateAnimal(animal)
-        getAllAnimals()  // Cập nhật danh sách sau khi sửa
+    // Update
+    fun updateAnimal(type: String, name: String, color: Int, position: Int) {
+        val animal = AnimalFactory.createAnimal(type, name, color) // Factory logic here
+        repository.updateAnimal(position, animal)
+        getAllAnimals()  // Update list after Update
     }
 
-    // Xóa một con vật
+    // Delete
     fun deleteAnimal(position: Int) {
         repository.deleteAnimal(position)
-        getAllAnimals()  // Cập nhật danh sách sau khi xóa
+        getAllAnimals()  // Update list after Delete
+    }
+
+    // Convert String to ID
+    fun convertColorNameToId(colorName: String): Int? {
+        return ColorConverter.colorNameToId(colorName)
     }
 }

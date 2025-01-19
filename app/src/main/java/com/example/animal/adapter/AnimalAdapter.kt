@@ -33,17 +33,15 @@ class AnimalAdapter(
         notifyDataSetChanged()
     }
 
-    // ViewHolder dùng ViewBinding
+    // ViewHolder use ViewBinding
     inner class AnimalViewHolder(private val binding: ItemAnimalBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(animal: Animal, position: Int) {
             binding.txtName.text = animal.name
             binding.imageAnimal.setImageResource(animal.image)
             binding.imageColor.setImageResource(animal.color)
-
             binding.btnDelete.setOnClickListener { listener.onDeleteClick(position) }
-
-            binding.root.setOnClickListener { listener.onItemClick(animal) }
+            binding.root.setOnClickListener { listener.onItemClick(animal,position) }
         }
     }
 }

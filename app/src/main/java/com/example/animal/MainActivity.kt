@@ -1,7 +1,6 @@
 package com.example.animal
 
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
@@ -9,22 +8,12 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.animal.adapter.AnimalAdapter
 import com.example.animal.adapter.listener.IOnItemClickListener
 import com.example.animal.databinding.ActivityMainBinding
 import com.example.animal.model.Animal
-import com.example.animal.model.Cat
-import com.example.animal.model.Dog
-import com.example.animal.model.Dragon
-import com.example.animal.model.Shark
-import com.example.animal.model.Lion
-import com.example.animal.model.Tiger
-import com.example.animal.model.Species
 import com.example.animal.viewmodel.AnimalViewModel
 
 class MainActivity : AppCompatActivity(), IOnItemClickListener {
@@ -40,13 +29,13 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // thiet lap binding
+        // Binding
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        //khởi tạo ViewModel
+        //ViewModel
         animalViewModel = ViewModelProvider(this)[AnimalViewModel::class.java]
 
-        //khởi tạo adpater cho listview
+        //Adapter
         animalAdapter = AnimalAdapter(mutableListOf(), this)
 
         binding.recList.apply {
@@ -54,15 +43,10 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             adapter = animalAdapter
         }
 
-        animalViewModel.animals.observe(this, Observer { animals ->
-            // Khi LiveData thay đổi, cập nhật danh sách trong Adapter
+        animalViewModel.animals.observe(this) { animals ->
+            // Observe of LiveData
             animalAdapter.updateData(animals)
-        })
-
-//        val newAnimal1 = Dog("Animal",R.drawable.blue)
-//        animalViewModel.addAnimal(newAnimal1)
-//        animalViewModel.addAnimal(newAnimal1)
-//        animalViewModel.addAnimal(newAnimal1)
+        }
 
         val types = arrayOf(
             "Cat",
@@ -72,7 +56,7 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             "Shark",
             "Tiger")
 
-        // Tạo ArrayAdapter cho Spinner Type
+        // spinType
         val typeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, types)
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinType.adapter = typeAdapter
@@ -80,11 +64,10 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         binding.spinType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
                 selectedType = parent.getItemAtPosition(position).toString()
-                Toast.makeText(this@MainActivity, "Bạn đã chọn: $selectedType", Toast.LENGTH_SHORT).show()
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {
-                // Không làm gì
+                // Do nothing
             }
         }
 
@@ -96,54 +79,53 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             "Yellow",
             "Black")
 
-        // Tạo ArrayAdapter cho Spinner Type
+        // spinColor
         val typeAdapter2 = ArrayAdapter(this, android.R.layout.simple_spinner_item, types2)
         typeAdapter2.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinColor.adapter = typeAdapter2
 
         binding.spinColor.onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
             override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
-                // Lấy item đã chọn
+                // Get the selected item
                 val selectedColor = parent.getItemAtPosition(position).toString()
-                when(selectedColor){
-                    "Blue" -> colorID = R.drawable.blue
-                    "Pink" -> colorID = R.drawable.pink
-                    "Green" -> colorID = R.drawable.green
-                    "Red" -> colorID = R.drawable.red
-                    "Yellow" -> colorID = R.drawable.yellow
-                    "Black" -> colorID = R.drawable.black
-                }
-                // Thực hiện hành động với item đã chọn (in ra màu)
-//                Toast.makeText(this@MainActivity, "$colorID", Toast.LENGTH_SHORT).show()
+                colorID = animalViewModel.convertColorNameToId(selectedColor)!!
             }
             override fun onNothingSelected(parent: AdapterView<*>) {
-                // Không có item nào được chọn
+                // No items selected
             }
         }
 
         binding.btnAdd.setOnClickListener {
             if(binding.edtName.text.isEmpty()){
-                Toast.makeText(this, "Vui lòng nhập tên", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Please enter a name", Toast.LENGTH_SHORT).show()
             }else{
                 addNewAnimal()
+            }
+        }
+
+        binding.btnEdit.setOnClickListener{
+            if(binding.edtName.text.isEmpty()){
+                Toast.makeText(this, "Please select 1 item", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
     private fun addNewAnimal(){
         val newName = binding.edtName.text.toString().trim()
-        animalViewModel.addAnimal(selectedType, newName, colorID) // Gọi hàm từ ViewModel
+        animalViewModel.addAnimal(selectedType, newName, colorID) // Call from ViewModel
         binding.edtName.setText("")
+        Toast.makeText(this, "Add success", Toast.LENGTH_SHORT).show()
     }
 
     override fun onDeleteClick(position: Int) {
         showConfirmDialog(position)
     }
 
-    override fun onItemClick(animal: Animal) {
+    override fun onItemClick(animal: Animal, position: Int) {
         binding.edtName.setText(animal.name)
         val id1 = animal.color
-        var color : Int = 0
+        var color = 0
+
         when(id1){
             R.drawable.blue -> color = 0
             R.drawable.pink -> color = 1
@@ -155,7 +137,7 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         binding.spinColor.setSelection(color)
 
         val id2 = animal.type.toString()
-        var animalID : Int = 0
+        var animalID = 0
         when(id2){
             "CAT" -> animalID = 0
             "DOG" -> animalID = 1
@@ -168,31 +150,53 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
 
         binding.btnEdit.setOnClickListener {
             if(binding.edtName.text.isEmpty()){
-                Toast.makeText(this, "Vui lòng nhập tên", Toast.LENGTH_SHORT).show()
-            }else{
-                editAnimal();
+                Toast.makeText(this, "Please select 1 item", Toast.LENGTH_SHORT).show()
+            }
+            else{
+                val selectedColorPosition = binding.spinColor.selectedItemPosition
+                var newIDColor = 0
+                when(selectedColorPosition){
+                    0 -> newIDColor = R.drawable.blue
+                    1 -> newIDColor = R.drawable.pink
+                    2 -> newIDColor = R.drawable.green
+                    3-> newIDColor = R.drawable.red
+                    4 -> newIDColor = R.drawable.yellow
+                    5 -> newIDColor = R.drawable.black
+                }
+
+                val selectedTypePosition = binding.spinType.selectedItemPosition
+                var newType123 = "Cat"
+                when(selectedTypePosition){
+                    0 -> newType123 = "Cat"
+                    1 -> newType123 = "Dog"
+                    2 -> newType123 = "Dragon"
+                    3 -> newType123 = "Lion"
+                    4 -> newType123 = "Shark"
+                    5 -> newType123 = "Tiger"
+                }
+
+                val newName = binding.edtName.text.toString()
+                animalViewModel.updateAnimal(newType123, newName, newIDColor ,position)
+                binding.edtName.setText("")
+                Toast.makeText(this, "Edit success!", Toast.LENGTH_SHORT).show()
             }
         }
     }
 
-    private fun editAnimal(){
-
-    }
-
     private fun showConfirmDialog(position: Int) {
-        // Tạo AlertDialog để xác nhận xóa
+        // Create AlertDialog
         val dialogBuilder = AlertDialog.Builder(this)
-            .setMessage("Bạn có chắc muốn xóa không?")
-            .setCancelable(false) // Không thể hủy dialog ngoài việc chọn Có hoặc Không
-            .setPositiveButton("Có") { dialog, id ->
+            .setMessage("Are you sure you want to delete??")
+            .setCancelable(false) // Choose yes or no
+            .setPositiveButton("Yes") { _, _ ->
                 animalViewModel.deleteAnimal(position)
-                Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Delete success!", Toast.LENGTH_SHORT).show()
             }
-            .setNegativeButton("Không") { dialog, id ->
-                // Xử lý khi người dùng chọn "Không"
-                dialog.dismiss() // Đóng dialog
+            .setNegativeButton("No") { dialog, _ ->
+                // Choose No
+                dialog.dismiss() // Close dialog
             }
-        // Hiển thị AlertDialog
+        // Display AlertDialog
         val alert = dialogBuilder.create()
         alert.show()
     }

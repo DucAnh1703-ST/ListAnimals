@@ -1,34 +1,32 @@
 package com.example.animal.repo
 
-import com.example.animal.R
 import com.example.animal.model.Animal
-import com.example.animal.model.Cat
-import com.example.animal.model.Dog
 
 class AnimalRepository {
 
-    // Danh sách các con vật, giả sử đang lưu trong bộ nhớ (List)
+    // List of Animals
     private val animals = mutableListOf<Animal>()
 
-    // Lấy danh sách các con vật
+    // Get List
     fun getAllAnimals(): MutableList<Animal> {
         return animals
     }
 
-    // Thêm một con vật mới
+    // Add new
     fun addAnimal(animal: Animal) {
         animals.add(animal)
     }
 
-    // Sửa thông tin một con vật
-    fun updateAnimal(animal: Animal) {
-        val index = animals.indexOfFirst { it.name == animal.name }
-        if (index != -1) {
-            animals[index] = animal
+    // Edit
+    fun updateAnimal(position: Int, animal: Animal) {
+        if (position in animals.indices) { // Check position
+            animals[position] = animal // update new animal
+        } else {
+            throw IndexOutOfBoundsException("Invalid position: $position") // Exception
         }
     }
 
-    // Xóa một con vật
+    // Delete
     fun deleteAnimal(position: Int) {
         animals.removeAt(position)
     }
