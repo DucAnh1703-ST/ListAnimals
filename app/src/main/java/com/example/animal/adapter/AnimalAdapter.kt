@@ -42,6 +42,8 @@ class AnimalAdapter(
             binding.imageColor.setImageResource(animal.color)
 
             binding.btnDelete.setOnClickListener { listener.onDeleteClick(position) }
+
+            binding.root.setOnClickListener { listener.onItemClick(animal) }
         }
     }
 }

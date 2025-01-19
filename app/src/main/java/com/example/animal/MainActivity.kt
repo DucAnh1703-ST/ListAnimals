@@ -34,6 +34,8 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
     // khai bao bien binding
     private lateinit var binding: ActivityMainBinding
     private var colorID : Int = -1
+    private lateinit var selectedType : String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -57,10 +59,10 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             animalAdapter.updateData(animals)
         })
 
-        val newAnimal1 = Dog("Animal",R.drawable.blue)
-        animalViewModel.addAnimal(newAnimal1)
-        animalViewModel.addAnimal(newAnimal1)
-        animalViewModel.addAnimal(newAnimal1)
+//        val newAnimal1 = Dog("Animal",R.drawable.blue)
+//        animalViewModel.addAnimal(newAnimal1)
+//        animalViewModel.addAnimal(newAnimal1)
+//        animalViewModel.addAnimal(newAnimal1)
 
         val types = arrayOf(
             "Cat",
@@ -74,6 +76,17 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
         val typeAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, types)
         typeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinType.adapter = typeAdapter
+
+        binding.spinType.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>, view: View?, position: Int, id: Long) {
+                selectedType = parent.getItemAtPosition(position).toString()
+                Toast.makeText(this@MainActivity, "Bạn đã chọn: $selectedType", Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // Không làm gì
+            }
+        }
 
         val types2 = arrayOf(
             "Blue",
@@ -112,20 +125,58 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             if(binding.edtName.text.isEmpty()){
                 Toast.makeText(this, "Vui lòng nhập tên", Toast.LENGTH_SHORT).show()
             }else{
-                addNewAnimal();
+                addNewAnimal()
             }
         }
     }
 
     private fun addNewAnimal(){
-        var newName = binding.edtName.text.toString().trim()
-        val newAnimal1 = Cat(newName,colorID)
-        animalViewModel.addAnimal(newAnimal1)
-
+        val newName = binding.edtName.text.toString().trim()
+        animalViewModel.addAnimal(selectedType, newName, colorID) // Gọi hàm từ ViewModel
+        binding.edtName.setText("")
     }
 
     override fun onDeleteClick(position: Int) {
         showConfirmDialog(position)
+    }
+
+    override fun onItemClick(animal: Animal) {
+        binding.edtName.setText(animal.name)
+        val id1 = animal.color
+        var color : Int = 0
+        when(id1){
+            R.drawable.blue -> color = 0
+            R.drawable.pink -> color = 1
+            R.drawable.green -> color = 2
+            R.drawable.red -> color = 3
+            R.drawable.yellow -> color = 4
+            R.drawable.black -> color = 5
+        }
+        binding.spinColor.setSelection(color)
+
+        val id2 = animal.type.toString()
+        var animalID : Int = 0
+        when(id2){
+            "CAT" -> animalID = 0
+            "DOG" -> animalID = 1
+            "DRAGON" -> animalID = 2
+            "LION" -> animalID = 3
+            "SHARK" -> animalID = 4
+            "TIGER" -> animalID = 5
+        }
+        binding.spinType.setSelection(animalID)
+
+        binding.btnEdit.setOnClickListener {
+            if(binding.edtName.text.isEmpty()){
+                Toast.makeText(this, "Vui lòng nhập tên", Toast.LENGTH_SHORT).show()
+            }else{
+                editAnimal();
+            }
+        }
+    }
+
+    private fun editAnimal(){
+
     }
 
     private fun showConfirmDialog(position: Int) {
@@ -135,17 +186,14 @@ class MainActivity : AppCompatActivity(), IOnItemClickListener {
             .setCancelable(false) // Không thể hủy dialog ngoài việc chọn Có hoặc Không
             .setPositiveButton("Có") { dialog, id ->
                 animalViewModel.deleteAnimal(position)
-                Toast.makeText(this, "Đã xóa!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Xóa thành công!", Toast.LENGTH_SHORT).show()
             }
             .setNegativeButton("Không") { dialog, id ->
                 // Xử lý khi người dùng chọn "Không"
                 dialog.dismiss() // Đóng dialog
             }
-
         // Hiển thị AlertDialog
         val alert = dialogBuilder.create()
         alert.show()
     }
-
-
 }

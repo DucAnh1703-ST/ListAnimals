@@ -1,6 +1,9 @@
 package com.example.animal.repo
 
+import com.example.animal.R
 import com.example.animal.model.Animal
+import com.example.animal.model.Cat
+import com.example.animal.model.Dog
 
 class AnimalRepository {
 
