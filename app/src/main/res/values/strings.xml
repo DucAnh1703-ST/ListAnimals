@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Animal</string>
+    <string name="str_name">Name:</string>
+    <string name="str_please_enter_a_name">Please enter a name</string>
+    <string name="txt_favorite_animals">Favorite Animals</string>
+    <string name="txt_type">Type:</string>
+    <string name="txt_color">Color:</string>
+    <string name="edt_name_of_animal">Name of Animal</string>
+    <string name="btn_add">Add</string>
+    <string name="btn_edit">Edit</string>
+    <string name="toast_please_select_1_item">Please select 1 item</string>
+    <string name="btn_delete">Delete</string>
 </resources>
